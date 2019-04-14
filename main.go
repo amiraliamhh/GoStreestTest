@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/schollz/progressbar"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -14,10 +12,13 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/schollz/progressbar"
+	"gopkg.in/yaml.v2"
 )
 
 //strucure of the yaml file
-type conf struct {
+type Conf struct {
 	Hits   int                    `yaml:"hits"`
 	Route  string                 `yaml:"route"`
 	Code   int                    `yaml:"code"`
@@ -26,7 +27,7 @@ type conf struct {
 }
 
 //get the configuration
-func (c *conf) getConf() *conf {
+func (c *Conf) getConf() *Conf {
 	yamlFile, err := ioutil.ReadFile("config.yaml")
 	if err != nil {
 		log.Printf("yamlFile.Get err   #%v ", err)
@@ -126,7 +127,7 @@ func worker(mainWaitGroup *sync.WaitGroup, thread int, total int, bar *progressb
 		defer mainWaitGroup.Done()
 	}()
 	var wg sync.WaitGroup
-	var c conf
+	var c Conf
 	c.getConf()
 	_ = time.Now()
 	ch := make(chan string)
@@ -149,7 +150,7 @@ func worker(mainWaitGroup *sync.WaitGroup, thread int, total int, bar *progressb
 }
 
 func single() {
-	var c conf
+	var c Conf
 	c.getConf()
 	bar := *progressbar.New(c.Hits * 1)
 	bar.RenderBlank()
@@ -167,7 +168,7 @@ func multiple() {
 			help()
 			return
 		}
-		var c conf
+		var c Conf
 		c.getConf()
 		bar := *progressbar.New(c.Hits * count)
 		bar.RenderBlank()
@@ -182,7 +183,7 @@ func multiple() {
 	}
 }
 
-func commandRouter(s string, ) {
+func commandRouter(s string) {
 	if s == "single" {
 		single()
 	} else if s == "multiple" {
